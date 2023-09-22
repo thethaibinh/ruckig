@@ -1,5 +1,5 @@
 from ruckig import InputParameter, Ruckig, Trajectory, Result
-
+import time
 
 if __name__ == '__main__':
     inp = InputParameter(3)
@@ -12,23 +12,28 @@ if __name__ == '__main__':
     inp.target_velocity = [0.0, -0.5, -2.0]
     inp.target_acceleration = [0.0, 0.0, 0.5]
 
-    inp.max_velocity = [3.0, 1.0, 3.0]
+    inp.max_velocity = [100.0, 100.0, 100.0]
     inp.max_acceleration = [3.0, 2.0, 1.0]
     inp.max_jerk = [4.0, 3.0, 2.0]
 
     # Set different constraints for negative direction
-    inp.min_velocity = [-1.0, -0.5, -3.0]
+    # inp.min_velocity = [-1.0, -0.5, -3.0]
+    inp.min_velocity = [-100.0, -100.0, -100.0]
     inp.min_acceleration = [-2.0, -1.0, -2.0]
 
     # We don't need to pass the control rate (cycle time) when using only offline features
     otg = Ruckig(3)
     trajectory = Trajectory(3)
 
+    start_time = time.time()
+
     # Calculate the trajectory in an offline manner
     result = otg.calculate(inp, trajectory)
     if result == Result.ErrorInvalidInput:
         raise Exception('Invalid input!')
 
+    cal_time = time.time() - start_time
+    print(f'Cal time: {cal_time:0.6f} [s]')
     print(f'Trajectory duration: {trajectory.duration:0.4f} [s]')
 
     new_time = 1.0
@@ -37,6 +42,7 @@ if __name__ == '__main__':
     new_position, new_velocity, new_acceleration = trajectory.at_time(new_time)
 
     print(f'Position at time {new_time:0.4f} [s]: {new_position}')
+    print(f'delta time {otg.delta_time:0.4f} [s]: {new_position}')
 
     # Get some info about the position extrema of the trajectory
     print(f'Position extremas are {trajectory.position_extrema}')
