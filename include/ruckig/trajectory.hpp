@@ -18,11 +18,11 @@ template<size_t, template<class, size_t> class> class WaypointsCalculator;
 //! Interface for the generated trajectory.
 template<size_t DOFs, template<class, size_t> class CustomVector = StandardVector>
 class Trajectory {
-#if defined WITH_CLOUD_CLIENT
+// #if defined WITH_CLOUD_CLIENT
     template<class T> using Container = std::vector<T>;
-#else
-    template<class T> using Container = std::array<T, 1>;
-#endif
+// #else
+//     template<class T> using Container = std::array<T, 1>;
+// #endif
 
     template<class T> using Vector = CustomVector<T, DOFs>;
 
@@ -39,7 +39,7 @@ class Trajectory {
 
     size_t continue_calculation_counter {0};
 
-#if defined WITH_CLOUD_CLIENT
+// #if defined WITH_CLOUD_CLIENT
     template<size_t D = DOFs, typename std::enable_if<(D >= 1), int>::type = 0>
     void resize(size_t max_number_of_waypoints) {
         profiles.resize(max_number_of_waypoints + 1);
@@ -54,7 +54,7 @@ class Trajectory {
             p.resize(degrees_of_freedom);
         }
     }
-#endif
+// #endif
 
     //! Calculates the base values to then integrate from
     using SetIntegrate = std::function<void(size_t, double, double, double, double, double)>;
@@ -157,6 +157,13 @@ public:
         profiles[0].resize(dofs);
         independent_min_durations.resize(dofs);
         position_extrema.resize(dofs);
+    }
+
+    void reset()
+    {
+        resize(0);
+        duration = 0.0;
+        continue_calculation_counter = 0;
     }
 
 #if defined WITH_CLOUD_CLIENT

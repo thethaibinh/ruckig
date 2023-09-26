@@ -225,9 +225,9 @@ public:
     template<bool throw_error>
     Result calculate(const InputParameter<DOFs, CustomVector>& inp, Trajectory<DOFs, CustomVector>& traj, double delta_time, bool& was_interrupted) {
         was_interrupted = false;
-#if defined WITH_CLOUD_CLIENT
-        traj.resize(0);
-#endif
+// #if defined WITH_CLOUD_CLIENT
+        traj.reset();
+// #endif
 
         for (size_t dof = 0; dof < degrees_of_freedom; ++dof) {
             auto& p = traj.profiles[0][dof];
