@@ -7,7 +7,11 @@
 
 #include <ruckig/error.hpp>
 #include <ruckig/profile.hpp>
+#include <geometry_msgs/TransformStamped.h>
 
+// ROS TF2
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_ros/transform_listener.h>
 
 namespace ruckig {
 
@@ -38,6 +42,8 @@ class Trajectory {
     Vector<PositionExtrema> position_extrema;
 
     size_t continue_calculation_counter {0};
+
+    geometry_msgs::TransformStamped transform_to_body, transform_to_world;
 
 // #if defined WITH_CLOUD_CLIENT
     template<size_t D = DOFs, typename std::enable_if<(D >= 1), int>::type = 0>
@@ -180,6 +186,64 @@ public:
         position_extrema.resize(dofs);
     }
 #endif
+
+    void assign_body_to_world_transform(
+      const geometry_msgs::TransformStamped& t) {
+      transform_to_world = t;
+    }
+
+    void assign_world_to_body_transform(
+      const geometry_msgs::TransformStamped& t) {
+      transform_to_body = t;
+    }
+
+    geometry_msgs::TransformStamped get_transform_to_world() const {
+      return transform_to_world;
+    }
+
+    geometry_msgs::TransformStamped get_transform_to_body() const {
+      return transform_to_body;
+    }
+
+    //! Get the position at a given time
+    std::array<double, 3> get_position(double time) const {
+      std::array<double, 3> position;
+      at_time(time, position);
+      return position;
+    }
+
+    //! Get the position at a given time in the world frame
+    geometry_msgs::Point get_position_in_world_frame(double time) const {
+      std::array<double, 3> position = get_position(time);
+
+      geometry_msgs::Point position_in_body_frame, position_in_world_frame;
+      position_in_body_frame.x = position[2];
+      position_in_body_frame.y = -position[0];
+      position_in_body_frame.z = -position[1];
+      try {
+        tf2::doTransform(position_in_body_frame, position_in_world_frame,
+                         transform_to_world);
+      } catch (tf2::TransformException& ex) {
+        ROS_WARN("Failure %s\n", ex.what());  // Print exception which was
+                                              // caught
+      }
+      return position_in_world_frame;
+    }
+
+    //! Get the position at the starting time
+    geometry_msgs::Point get_initial_position_in_world_frame() const {
+      return get_position_in_world_frame(0.0);
+    }
+
+    //! Get the position at the starting time
+    std::array<double, 3> get_initial_position() const {
+      return get_position(0.0);
+    }
+
+    //! Get the position at the terminal time
+    std::array<double, 3> get_terminal_position() const {
+      return get_position(get_duration());
+    }
 
     //! Get the kinematic state, the jerk, and the section at a given time
     void at_time(double time, Vector<double>& new_position, Vector<double>& new_velocity, Vector<double>& new_acceleration, Vector<double>& new_jerk, size_t& new_section) const {
