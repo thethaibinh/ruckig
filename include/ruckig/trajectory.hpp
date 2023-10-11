@@ -234,6 +234,10 @@ public:
     geometry_msgs::Point get_initial_position_in_world_frame() const {
       return get_position_in_world_frame(0.0);
     }
+    //! Get the position at the terminal time
+    geometry_msgs::Point get_terminal_position_in_world_frame() const {
+      return get_position_in_world_frame(get_duration());
+    }
 
     //! Get the position at the starting time
     std::array<double, 3> get_initial_position() const {
