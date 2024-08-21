@@ -8,21 +8,21 @@ using namespace ruckig;
 int main() {
     // Create input parameters
     InputParameter<3> input;
-    input.current_position = {0.0, 0.0, 0.5};
-    input.current_velocity = {0.0, -2.2, -0.5};
-    input.current_acceleration = {0.0, 2.5, -0.5};
+    input.current_position = {0.0, 0.0, 0.0};
+    input.current_velocity = {0.0, -1.2, -0.5};
+    // input.current_acceleration = {0.0, 2.5, -0.5};
 
-    input.target_position = {5.0, -2.0, -3.5};
-    input.target_velocity = {0.0, -0.5, -2.0};
-    input.target_acceleration = {0.0, 0.0, 0.5};
+    input.target_position = {5.0, -2.0, -1.5};
+    input.target_velocity = {0.0, 0.0, 0.0};
+    // input.target_acceleration = {0.0, 0.0, 0.5};
 
-    input.max_velocity = {3.0, 1.0, 3.0};
-    input.max_acceleration = {3.0, 2.0, 1.0};
-    input.max_jerk = {4.0, 3.0, 2.0};
+    input.max_velocity = {3.0, 3.0, 3.0};
+    input.max_acceleration = {7.0, 7.0, 7.0};
+    // input.max_jerk = {4.0, 3.0, 2.0};
 
     // Set different constraints for negative direction
-    input.min_velocity = {-2.0, -0.5, -3.0};
-    input.min_acceleration = {-2.0, -2.0, -2.0};
+    // input.min_velocity = {-2.0, -0.5, -3.0};
+    // input.min_acceleration = {-2.0, -2.0, -2.0};
 
     // We don't need to pass the control rate (cycle time) when using only offline features
     Ruckig<3> otg;
@@ -37,6 +37,8 @@ int main() {
 
     // Get duration of the trajectory
     std::cout << "Trajectory duration: " << trajectory.get_duration() << " [s]." << std::endl;
+    std::cout << "Trajectory calculation duration: " << trajectory.get_calculation_duration() << " [µs]." << std::endl;
+    std::cout << "Trajectory calculation duration ms: " << trajectory.get_calculation_duration() / 1000 << " [ms]." << std::endl;
 
     double new_time = 1.0;
 
@@ -48,5 +50,5 @@ int main() {
 
     // Get some info about the position extrema of the trajectory
     std::array<Bound, 3> position_extrema = trajectory.get_position_extrema();
-    std::cout << "Position extremas for DoF 4 are " << position_extrema[2].min << " (min) to " << position_extrema[2].max << " (max)" << std::endl;
+    std::cout << "Position extremas for DoF 3 are " << position_extrema[2].min << " (min) to " << position_extrema[2].max << " (max)" << std::endl;
 }

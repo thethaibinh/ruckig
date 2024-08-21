@@ -54,6 +54,7 @@ public:
     //! Calculate the time-optimal waypoint-based trajectory
     template<bool throw_error>
     Result calculate(const InputParameter<DOFs, CustomVector>& input, Trajectory<DOFs, CustomVector>& trajectory, double delta_time, bool& was_interrupted) {
+        const auto start = std::chrono::steady_clock::now();
         Result result;
 #if defined WITH_CLOUD_CLIENT
         if (use_waypoints_trajectory(input)) {
@@ -64,7 +65,8 @@ public:
 #else
         result = target_calculator.template calculate<throw_error>(input, trajectory, delta_time, was_interrupted);
 #endif
-
+        const auto stop = std::chrono::steady_clock::now();
+        trajectory.calculation_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start).count() / 1000.0;
         return result;
     }
 

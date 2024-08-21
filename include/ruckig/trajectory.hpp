@@ -140,6 +140,8 @@ class Trajectory {
 
 public:
     size_t degrees_of_freedom;
+    // Computational duration of the entire trajectory
+    double calculation_duration {0.0}; // [µs]
 
     template<size_t D = DOFs, typename std::enable_if<(D >= 1), int>::type = 0>
     Trajectory(): degrees_of_freedom(DOFs) {
@@ -253,6 +255,11 @@ public:
     //! Get the duration of the (synchronized) trajectory
     double get_duration() const {
         return duration;
+    }
+
+    //! Get the calculation duration of the (synchronized) trajectory
+    double get_calculation_duration() const {
+        return calculation_duration;
     }
 
     //! Get the durations when the intermediate waypoints are reached
