@@ -228,7 +228,7 @@ public:
 #if defined WITH_CLOUD_CLIENT
         traj.resize(0);
 #endif
-
+        traj.reset();
         for (size_t dof = 0; dof < degrees_of_freedom; ++dof) {
             auto& p = traj.profiles[0][dof];
 
