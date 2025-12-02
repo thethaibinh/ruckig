@@ -18,9 +18,6 @@ if(WIN32 AND BUILD_SHARED_LIBS)
   option(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS "On Windows, export all symbols when building a shared library." ON)
 endif()
 
-find_package(catkin REQUIRED COMPONENTS)
-include_directories(${catkin_INCLUDE_DIRS})
-
 add_library(ruckig
   src/ruckig/brake.cpp
   src/ruckig/position_first_step1.cpp
@@ -40,8 +37,6 @@ target_include_directories(ruckig PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
-target_link_libraries(ruckig PUBLIC
-  ${catkin_LIBRARIES})
 
 if(MSVC)
   target_compile_definitions(ruckig PUBLIC _USE_MATH_DEFINES)
@@ -164,11 +159,6 @@ install(FILES
   "${CMAKE_CURRENT_BINARY_DIR}/ruckig-config.cmake"
   "${CMAKE_CURRENT_BINARY_DIR}/ruckig-config-version.cmake"
   DESTINATION ${ruckig_INSTALL_CONFIGDIR}
-)
-
-install(FILES
-  "${CMAKE_CURRENT_SOURCE_DIR}/package.xml"
-  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}
 )
 
 

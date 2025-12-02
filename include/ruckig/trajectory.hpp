@@ -4,14 +4,15 @@
 #include <functional>
 #include <tuple>
 #include <vector>
+#include <iostream>
 
 #include <ruckig/error.hpp>
 #include <ruckig/profile.hpp>
-#include <geometry_msgs/TransformStamped.h>
+#include <geometry_msgs/msg/transform_stamped.hpp>
+#include <geometry_msgs/msg/point.hpp>
 
-// ROS TF2
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <tf2_ros/transform_listener.h>
+// ROS2 TF2
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 namespace ruckig {
 
@@ -43,7 +44,7 @@ class Trajectory {
 
     size_t continue_calculation_counter {0};
 
-    geometry_msgs::TransformStamped transform_to_body, transform_to_world;
+    geometry_msgs::msg::TransformStamped transform_to_body, transform_to_world;
 
 #if defined WITH_CLOUD_CLIENT
     template<size_t D = DOFs, typename std::enable_if<(D >= 1), int>::type = 0>
@@ -188,20 +189,20 @@ public:
 #endif
 
     void assign_body_to_world_transform(
-      const geometry_msgs::TransformStamped& t) {
+      const geometry_msgs::msg::TransformStamped& t) {
       transform_to_world = t;
     }
 
     void assign_world_to_body_transform(
-      const geometry_msgs::TransformStamped& t) {
+      const geometry_msgs::msg::TransformStamped& t) {
       transform_to_body = t;
     }
 
-    geometry_msgs::TransformStamped get_transform_to_world() const {
+    geometry_msgs::msg::TransformStamped get_transform_to_world() const {
       return transform_to_world;
     }
 
-    geometry_msgs::TransformStamped get_transform_to_body() const {
+    geometry_msgs::msg::TransformStamped get_transform_to_body() const {
       return transform_to_body;
     }
 
@@ -213,10 +214,10 @@ public:
     }
 
     //! Get the position at a given time in the world frame
-    geometry_msgs::Point get_position_in_world_frame(double time) const {
+    geometry_msgs::msg::Point get_position_in_world_frame(double time) const {
       std::array<double, 3> position = get_position(time);
 
-      geometry_msgs::Point position_in_body_frame, position_in_world_frame;
+      geometry_msgs::msg::Point position_in_body_frame, position_in_world_frame;
       position_in_body_frame.x = position[2];
       position_in_body_frame.y = -position[0];
       position_in_body_frame.z = -position[1];
@@ -224,18 +225,17 @@ public:
         tf2::doTransform(position_in_body_frame, position_in_world_frame,
                          transform_to_world);
       } catch (tf2::TransformException& ex) {
-        ROS_WARN("Failure %s\n", ex.what());  // Print exception which was
-                                              // caught
+        std::cerr << "TF2 Transform failure: " << ex.what() << std::endl;
       }
       return position_in_world_frame;
     }
 
     //! Get the position at the starting time
-    geometry_msgs::Point get_initial_position_in_world_frame() const {
+    geometry_msgs::msg::Point get_initial_position_in_world_frame() const {
       return get_position_in_world_frame(0.0);
     }
     //! Get the position at the terminal time
-    geometry_msgs::Point get_terminal_position_in_world_frame() const {
+    geometry_msgs::msg::Point get_terminal_position_in_world_frame() const {
       return get_position_in_world_frame(get_duration());
     }
 
